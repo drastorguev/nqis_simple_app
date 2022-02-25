@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block page_heading %}
+  By Date Time Series Analysis
+{% endblock %}
+
+
+{% block page_content %}
+<script>
+
+  const data = {
+  labels: {{these_labels | tojson}},
+  datasets: [{
+    label: 'By Date',
+    data: {{these_data}},
+    borderWidth: 1
+  }]
+};
+
+  const config = {
+    type: 'bar',
+    data: data,
+    options: {}
+  };
+
+</script>
+
+<form class="row p-5" method="GET">
+  <div class="form-group col-sm-5">
+    <label for="MinDateEntry">Start Date</label>
+    <input type="date" class="form-control" id="MinDateEntry" name="min_date" aria-describedby="MinDateEntryHelp" placeholder="Enter date: yyyy-mm-dd">
+    <small id="MinDateEntryHelp" class="form-text text-muted">Earliest start date for data is {{global_min_date}}</small>
+  </div>
+  <div class="form-group col-sm-5">
+    <label for="MaxDateEntry">End Date</label>
+    <input type="date" class="form-control" id="MaxDateEntry"  name="max_date" aria-describedby="MaxDateEntryHelp" placeholder="Enter date: yyyy-mm-dd">
+    <small id="MaxDateEntryHelp" class="form-text text-muted">Latest end date for data is {{global_max_date}}</small>
+  </div>
+  <div class="col-sm-2">
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
+
+<div class="row">
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Metric 1</h5>
+        <p class="card-text">Some metric comments maybe + value?</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Metric 2</h5>
+        <p class="card-text">Some metric comments maybe + value?</p>
+      </div>
+    </div>
+  </div>
+    <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Metric 3</h5>
+        <p class="card-text">Some metric comments maybe + value?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="myChart" width="400" height="200"></canvas>
+
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+
+{{df_data}}
+
+
+{% endblock %}
+
