@@ -7,30 +7,36 @@
 
 {% block page_content %}
 <div class="row">
+  <div class="col-12">
+    <h4>Stats for Last Day: {{last_day_date}}</h4>
+  </div>
   <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 1</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">$ {{"{:,.1f}".format(last_day_vol)}}m</h5>
+        <p class="fs-5">Total transaction notional amount</p>
       </div>
     </div>
   </div>
   <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 2</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">{{"{:,}".format(last_day_count)}}</h5>
+        <p class="fs-5">Total number of transactions</p>
       </div>
     </div>
   </div>
     <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 3</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">$ {{"{:,.1f}bn".format(last_day_curr_vol)}} of {{last_day_currency}}</h5>
+        <p class="fs-5">Most active Notional Currency 1</p>
       </div>
     </div>
   </div>
 </div>
+<div>chart of new orders in the last month by count? -> currency</div>
+<div>chart of new orders in the last month by volume? -> product size?</div>
+<div>table break down by 2 verticals?</div>
 
 {% endblock %}

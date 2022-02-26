@@ -1,85 +1,129 @@
 {% extends 'base.html' %}
 
 {% block page_heading %}
-  By Date Time Series Analysis
+  Analysis By Date
 {% endblock %}
 
 
 {% block page_content %}
 <script>
+  const autocolors = window['chartjs-plugin-autocolors'];
 
   const data = {
-  labels: {{these_labels | tojson}},
-  datasets: [{
-    label: 'By Date',
-    data: {{these_data}},
-    borderWidth: 1
-  }]
+  labels: {{chart_labels | tojson}},
+  datasets: {{chart_data | tojson}}
 };
 
   const config = {
     type: 'bar',
     data: data,
-    options: {}
+    options: {
+       plugins: {
+        autocolors
+      },
+      responsive: true,
+      scales: {
+        x: {
+          stacked: true,
+        },
+        y: {
+          stacked: true
+        }
+      }
+    }
   };
 
 </script>
 
-<form class="row p-5" method="GET">
-  <div class="form-group col-sm-5">
-    <label for="MinDateEntry">Start Date</label>
-    <input type="date" class="form-control" id="MinDateEntry" name="min_date" aria-describedby="MinDateEntryHelp" placeholder="Enter date: yyyy-mm-dd">
+<div class="card bg-light">
+<form class="row p-3" method="GET">
+  <div class="form-group col-sm-3">
+    <label for="MinDateEntry">Event Timestamp - Start Date</label>
+    <input type="date" class="form-control" id="MinDateEntry" name="min_date" aria-describedby="MinDateEntryHelp">
     <small id="MinDateEntryHelp" class="form-text text-muted">Earliest start date for data is {{global_min_date}}</small>
   </div>
-  <div class="form-group col-sm-5">
-    <label for="MaxDateEntry">End Date</label>
-    <input type="date" class="form-control" id="MaxDateEntry"  name="max_date" aria-describedby="MaxDateEntryHelp" placeholder="Enter date: yyyy-mm-dd">
+  <div class="form-group col-sm-3">
+    <label for="MaxDateEntry">Event Timestamp - End Date</label>
+    <input type="date" class="form-control" id="MaxDateEntry"  name="max_date" aria-describedby="MaxDateEntryHelp" >
     <small id="MaxDateEntryHelp" class="form-text text-muted">Latest end date for data is {{global_max_date}}</small>
   </div>
-  <div class="col-sm-2">
+  <div class="form-group col-sm-3">
+    <label for="MinExpirationDateEntry">Expiration Year - Start</label>
+    <input type="number" class="form-control" id="MinExpirationDateEntry" name="min_exp_year" aria-describedby="MinExpirationDateEntryHelp" placeholder="Enter year only: yyyy">
+    <small id="MinExpirationDateEntryHelp" class="form-text text-muted">Earliest expiration year for data is {{global_exp_year_min_date}}</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="MaxExpirationDateEntry">Expiration Year - End</label>
+    <input type="number" class="form-control" id="MaxExpirationDateEntry"  name="max_exp_year" aria-describedby="MaxExpirationDateEntryHelp" placeholder="Enter year only: yyyy">
+    <small id="MaxExpirationDateEntryHelp" class="form-text text-muted">Latest expiration year for data is {{global_exp_year_max_date}}</small>
+  </div>
+  <div class="form-group col-12">
     <br>
+  </div>
+  <div class="form-group col-sm-4">
+    <label for="Xaxisvariable">Date column for x-axis</label>
+    <select class="form-select" name="time_variable" id="Xaxisvariable">
+      <option selected value="exch_date">Event timestamp</option>
+      <option value="expiration_year">Expiration Year</option>
+    </select>
+  </div>
+  <div class="form-group col-sm-4">
+    <label for="SubGroupVar">Sub Group Variable</label>
+    <select class="form-select" name="sub_group_variable" id="SubGroupVar">
+      <option value="">None</option>
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-sm-4">
+    <br/>
     <button type="submit" class="btn btn-primary">Submit</button>
   </div>
 </form>
-
+</div>
+<br>
 <div class="row">
+  <div class="col-12">
+    <h4>Selected Data Metrics</h4>
+  </div>
   <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 1</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">$ {{"{:,.1f}".format(total_volume_disp)}}m</h5>
+        <p class="fs-5">Total transaction notional amount</p>
       </div>
     </div>
   </div>
   <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 2</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">{{"{:,}".format(total_count_disp)}}</h5>
+        <p class="fs-5">Total number of transactions</p>
       </div>
     </div>
   </div>
     <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Metric 3</h5>
-        <p class="card-text">Some metric comments maybe + value?</p>
+        <h5 class="fs-1">$ {{"{:,.1f}".format(total_mean_disp)}}m</h5>
+        <p class="fs-5">Average nominal amount of transaction</p>
       </div>
     </div>
   </div>
 </div>
-
+<br/>
 <canvas id="myChart" width="400" height="200"></canvas>
-
+<br/>
 <script>
   const myChart = new Chart(
     document.getElementById('myChart'),
     config
   );
+
+  myChart.register(autocolors);
 </script>
-
-{{df_data}}
-
 
 {% endblock %}
 
