@@ -20,16 +20,90 @@ def serve_home():
     last_day_currency = last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values().index[-1]
     last_day_curr_vol = round(last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values()[-1]  / 1000000000, 1)
 
-    top_ten_currencies = set(last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values().index[-10:])
+    top_ten_currencies = last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values().index[-10:][::-1]
 
     table_html = last_day_df[last_day_df['Notional Currency 1'].isin(top_ten_currencies)]. \
             groupby(['Product ID','Notional Currency 1'])['notional_1_base']. \
-            sum().unstack().fillna(0).divide(1000000).round(1).to_html(classes=['table', 'table-striped', 'table-bordered'])
+            sum().unstack().fillna(0).divide(1000000).round(1).applymap(lambda x: "{:,.1f}".format(x))
+
+    table_html_final = table_html[top_ten_currencies].to_html(classes=['table', 'table-striped', 'table-bordered'])
 
     return render_template('home.html', last_day_vol=last_day_vol, last_day_count=last_day_count,
                            last_day_curr_vol=last_day_curr_vol,
                            last_day_currency=last_day_currency, last_day_date=last_day_date.strftime('%d/%m/%Y'),
-                           table_html=table_html)
+                           table_html=table_html_final)
+
+
+@app.route("/by_group")
+def serve_group():
+    keep_columns = set(
+        ['Product ID', 'Action', 'Transaction Type', 'Leg 1 - Floating Rate Index', 'Leg 2 - Floating Rate Index',
+         'Notional Currency 1', 'expiration_year', 'contract_length'])
+
+    df_columns = [x for x in df.columns if x in keep_columns]
+
+    global_min_date = df['exch_date'].min()
+    global_max_date = df['exch_date'].max()
+
+    global_exp_year_min_date = df['expiration_year'].min()
+    global_exp_year_max_date = df['expiration_year'].max()
+
+    request_min_date = request.args.get('min_date', global_min_date)
+    if not request_min_date:
+        request_min_date = global_min_date
+
+    request_max_date = request.args.get('max_date', global_max_date)
+    if not request_max_date:
+        request_max_date = global_max_date
+
+    request_min_exp_year = request.args.get('min_exp_year')
+    if not request_min_exp_year:
+        request_min_exp_year = global_exp_year_min_date
+
+    request_max_exp_year = request.args.get('max_exp_year')
+    if not request_max_exp_year:
+        request_max_exp_year = global_exp_year_max_date
+
+    df_temp = df[df['exch_date'].between(request_min_date, request_max_date)]
+
+    df_temp = df_temp[(df_temp['expiration_year'] >= int(request_min_exp_year)) &
+                      (df_temp['expiration_year'] <= int(request_max_exp_year))]
+
+    sub_group_list = []
+
+    sub_group_var_1 = request.args.get('sub_group_variable_1')
+
+    if not sub_group_var_1:
+        sub_group_var_1 = 'Product ID'
+
+    if sub_group_var_1 in keep_columns:
+        sub_group_list.append(sub_group_var_1)
+
+    sub_group_var_2 = request.args.get('sub_group_variable_2')
+    if sub_group_var_2 and sub_group_var_2 in keep_columns and sub_group_var_2 != sub_group_var_1:
+        sub_group_list.append(sub_group_var_2)
+
+    sub_group_var_3 = request.args.get('sub_group_variable_3')
+    if sub_group_var_3 and sub_group_var_3 in keep_columns and sub_group_var_2 != sub_group_var_1 and \
+            sub_group_var_3 != sub_group_var_2:
+        sub_group_list.append(sub_group_var_3)
+
+    final_df = df_temp.groupby(sub_group_list)['notional_1_base']. \
+        agg(['sum', 'mean', 'min', 'max', 'count']).reset_index().sort_values('sum', ascending=False)
+
+    final_df['sum'] = (final_df['sum']/ 1000000).round(1).apply(lambda x: "{:,.1f}".format(x))
+    final_df['mean'] = (final_df['mean'] / 1000000).round(1).apply(lambda x: "{:,.1f}".format(x))
+    final_df['min'] = (final_df['min'] / 1000000).round(1).apply(lambda x: "{:,.1f}".format(x))
+    final_df['max'] = (final_df['max'] / 1000000).round(1).apply(lambda x: "{:,.1f}".format(x))
+    final_df['count'] = final_df['count'].apply(lambda x: "{:,}".format(x))
+
+    table_html = final_df.round(1).to_html(classes=['table', 'table-striped', 'table-bordered'], index=False)
+
+    return render_template('group_page.html', global_min_date=global_min_date.strftime('%d/%m/%Y'),
+                           global_max_date=global_max_date.strftime('%d/%m/%Y'),
+                           global_exp_year_min_date=global_exp_year_min_date,
+                           global_exp_year_max_date=global_exp_year_max_date,
+                           columns_list=df_columns, table_html=table_html)
 
 
 @app.route("/by_date", methods=['GET', 'POST'])

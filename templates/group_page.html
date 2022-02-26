@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block page_heading %}
-  Analysis By Date
+  Analysis By Group
 {% endblock %}
 
 
@@ -9,8 +9,8 @@
 <script>
 
   const data = {
-  labels: {{chart_labels | tojson}},
-  datasets: {{chart_data | tojson}}
+  labels: {{ chart_labels }},
+  datasets: {{chart_data }}
 };
 
   const config = {
@@ -56,16 +56,26 @@
   <div class="form-group col-12">
     <br>
   </div>
-  <div class="form-group col-sm-4">
-    <label for="Xaxisvariable">Date column for x-axis</label>
-    <select class="form-select" name="time_variable" id="Xaxisvariable">
-      <option selected value="exch_date">Event timestamp</option>
-      <option value="expiration_year">Expiration Year</option>
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar1">Sub Group Variable 1</label>
+    <select class="form-select" name="sub_group_variable_1" id="SubGroupVar1">
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
     </select>
   </div>
-  <div class="form-group col-sm-4">
-    <label for="SubGroupVar">Sub Group Variable</label>
-    <select class="form-select" name="sub_group_variable" id="SubGroupVar">
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar2">Sub Group Variable 2</label>
+    <select class="form-select" name="sub_group_variable_2" id="SubGroupVar2">
+      <option value="">None</option>
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar3">Sub Group Variable 3</label>
+    <select class="form-select" name="sub_group_variable_3" id="SubGroupVar3">
       <option value="">None</option>
       {% for col in columns_list %}
           <option value="{{col}}">{{col}}</option>
@@ -73,51 +83,16 @@
     </select>
   </div>
 
-  <div class="col-sm-4">
+  <div class="col-sm-3">
     <br/>
     <button type="submit" class="btn btn-primary">Submit</button>
   </div>
 </form>
 </div>
 <br>
-<div class="row">
-  <div class="col-12">
-    <h4>Selected Data Metrics</h4>
+<div class="col-12">
+    <h4>Breakdown by selected variables (columns in data) - USD (millions) </h4>
   </div>
-  <div class="col-sm-4">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="fs-1">$ {{"{:,.1f}".format(total_volume_disp)}}m</h5>
-        <p class="fs-5">Total transaction notional amount</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-4">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="fs-1">{{"{:,}".format(total_count_disp)}}</h5>
-        <p class="fs-5">Total number of transactions</p>
-      </div>
-    </div>
-  </div>
-    <div class="col-sm-4">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="fs-1">$ {{"{:,.1f}".format(total_mean_disp)}}m</h5>
-        <p class="fs-5">Average nominal amount of transaction</p>
-      </div>
-    </div>
-  </div>
-</div>
-<br/>
-<canvas id="myChart" width="400" height="200"></canvas>
-<br/>
-<script>
-  const myChart = new Chart(
-    document.getElementById('myChart'),
-    config
-  );
-</script>
-
+{{table_html | safe}}
 {% endblock %}
 
