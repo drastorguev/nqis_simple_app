@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
 
 {% block page_heading %}
-  Various Stats For the Day
+  Various Stats for the Last Day: {{last_day_date}}
 {% endblock %}
 
 
 {% block page_content %}
 <div class="row">
-  <div class="col-12">
-    <h4>Stats for Last Day: {{last_day_date}}</h4>
-  </div>
   <div class="col-sm-4">
     <div class="card">
       <div class="card-body">
@@ -35,8 +32,10 @@
     </div>
   </div>
 </div>
-<div>chart of new orders in the last month by count? -> currency</div>
-<div>chart of new orders in the last month by volume? -> product size?</div>
-<div>table break down by 2 verticals?</div>
+<br/>
+<div class="col-12">
+    <h4>Breakdown by "Notional Currency 1" (only top 10) and "Product ID" - USD (millions) </h4>
+  </div>
+{{table_html | safe}}
 
 {% endblock %}

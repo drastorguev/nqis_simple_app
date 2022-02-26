@@ -19,10 +19,17 @@ def serve_home():
     last_day_count = len(last_day_df['notional_1_base'])
     last_day_currency = last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values().index[-1]
     last_day_curr_vol = round(last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values()[-1]  / 1000000000, 1)
-    print(last_day_curr_vol)
+
+    top_ten_currencies = set(last_day_df.groupby(['Notional Currency 1'])['notional_1_base'].sum().sort_values().index[-10:])
+
+    table_html = last_day_df[last_day_df['Notional Currency 1'].isin(top_ten_currencies)]. \
+            groupby(['Product ID','Notional Currency 1'])['notional_1_base']. \
+            sum().unstack().fillna(0).divide(1000000).round(1).to_html(classes=['table', 'table-striped', 'table-bordered'])
+
     return render_template('home.html', last_day_vol=last_day_vol, last_day_count=last_day_count,
                            last_day_curr_vol=last_day_curr_vol,
-                           last_day_currency=last_day_currency, last_day_date=last_day_date.strftime('%d/%m/%Y'))
+                           last_day_currency=last_day_currency, last_day_date=last_day_date.strftime('%d/%m/%Y'),
+                           table_html=table_html)
 
 
 @app.route("/by_date", methods=['GET', 'POST'])
