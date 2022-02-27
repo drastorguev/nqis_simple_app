@@ -6,7 +6,7 @@ import seaborn as sns
 import random
 
 
-df = pd.read_csv('data/final_data.csv').fillna('-')
+df = pd.read_csv('data/final_data.csv')
 df['exch_date'] = pd.to_datetime(df['exch_date'])
 
 app = Flask(__name__)
@@ -229,3 +229,15 @@ def serve_data_page():
                            total_volume_disp=total_volume,
                            total_count_disp=total_count,
                            total_mean_disp=total_mean)
+
+@app.route("/search_records")
+def serve_search():
+    columns_list = df.columns
+    # table_html = last_day_df[last_day_df['Notional Currency 1'].isin(top_ten_currencies)]. \
+    #         groupby(['Product ID','Notional Currency 1'])['notional_1_base']. \
+    #         sum().unstack().fillna(0).divide(1000000).round(1).applymap(lambda x: "{:,.1f}".format(x))
+    #
+    table_html_final = df.sample(10, random_state=42).to_html(classes=['table', 'table-striped', 'table-bordered'],
+                                                              index=False)
+
+    return render_template('search_records.html', columns_list=columns_list, table_html=table_html_final)

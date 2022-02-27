@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block page_heading %}
+  Search Data Records - <b style="color: green">THIS PAGE IS NOT FINISHED AND NOT CONNECTED TO BACK END!</b>
+{% endblock %}
+
+
+{% block page_content %}
+<div class="card bg-light">
+  <form class="row p-3" method="GET">
+  <div class="form-group col-sm-3">
+    <label for="MinDateEntry">Event Timestamp - Start Date</label>
+    <input type="date" class="form-control" id="MinDateEntry" name="min_date" aria-describedby="MinDateEntryHelp">
+    <small id="MinDateEntryHelp" class="form-text text-muted">Earliest start date for data is {{global_min_date}}</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="MaxDateEntry">Event Timestamp - End Date</label>
+    <input type="date" class="form-control" id="MaxDateEntry"  name="max_date" aria-describedby="MaxDateEntryHelp" >
+    <small id="MaxDateEntryHelp" class="form-text text-muted">Latest end date for data is {{global_max_date}}</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="MinExpirationDateEntry">Expiration Year - Start</label>
+    <input type="number" class="form-control" id="MinExpirationDateEntry" name="min_exp_year" aria-describedby="MinExpirationDateEntryHelp" placeholder="Enter year only: yyyy">
+    <small id="MinExpirationDateEntryHelp" class="form-text text-muted">Earliest expiration year for data is {{global_exp_year_min_date}}</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="MaxExpirationDateEntry">Expiration Year - End</label>
+    <input type="number" class="form-control" id="MaxExpirationDateEntry"  name="max_exp_year" aria-describedby="MaxExpirationDateEntryHelp" placeholder="Enter year only: yyyy">
+    <small id="MaxExpirationDateEntryHelp" class="form-text text-muted">Latest expiration year for data is {{global_exp_year_max_date}}</small>
+  </div>
+  <div class="form-group col-12">
+    <br>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar1">Search Variable 1</label>
+    <select class="form-select" name="sub_group_variable_1" id="SubGroupVar1">
+      <option value="">None</option>
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
+    </select>
+  </div>
+    <div class="form-group col-sm-3">
+    <label for="RecordID">Value Input 1</label>
+    <input type="text" class="form-control" id="RecordID" name="record_id" aria-describedby="RecordIDHelp">
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar2">Sub Group Variable 2</label>
+    <select class="form-select" name="sub_group_variable_2" id="SubGroupVar2">
+      <option value="">None</option>
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
+    </select>
+  </div>
+    <div class="form-group col-sm-3">
+    <label for="RecordID">Value Input 2</label>
+    <input type="text" class="form-control" id="RecordID" name="record_id" aria-describedby="RecordIDHelp">
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="SubGroupVar3">Sub Group Variable 3</label>
+    <select class="form-select" name="sub_group_variable_3" id="SubGroupVar3">
+      <option value="">None</option>
+      {% for col in columns_list %}
+          <option value="{{col}}">{{col}}</option>
+      {% endfor %}
+    </select>
+  </div>
+    <div class="form-group col-sm-3">
+    <label for="RecordID">Value Input 3</label>
+    <input type="text" class="form-control" id="RecordID" name="record_id" aria-describedby="RecordIDHelp">
+  </div>
+
+  <div class="col-sm-3">
+    <br/>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
+</div>
+  <br/>
+<br>
+<div class="row">
+  <div class="col-10">
+    <h4>Search Results - <b style="color: green">THESE RESULTS ARE RANDOM!</b></h4>
+  </div>
+<div class="col-2 text-right">
+    <button type="button" class="btn btn-light">Download as CSV <i class="bi bi-download"></i></button>
+  </div>
+  </div>
+<br/>
+<div style="overflow-x: auto;">
+  {{table_html | safe}}
+</div>
+
+{% endblock %}
+
