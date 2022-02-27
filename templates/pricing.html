@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block page_heading %}
+  Pricing Model - Linear Regression
+{% endblock %}
+
+
+{% block page_content %}
+
+<div class="card bg-light">
+<form class="row p-3" method="GET">
+  <div class="form-group col-sm-4">
+    <label for="NotionalAmount">Notional Amount</label>
+    <input type="number" class="form-control" id="NotionalAmount" name="notional_amount" min="100000" max="50000000" aria-describedby="NotionalAmountHelp">
+    <small id="NotionalAmountHelp" class="form-text text-muted">Minimum is 100000 and maximum is 50000000</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="ContractLength">Contract Length</label>
+    <input type="number" class="form-control" id="ContractLength" name="contract_length" min="1" max="10" aria-describedby="ContractLengthHelp">
+    <small id="ContractLengthHelp" class="form-text text-muted">Minimum is 1 year and maximum is 10 years</small>
+  </div>
+  <div class="form-group col-sm-3">
+    <label for="NotionalCurrency">Notional Currency</label>
+    <select class="form-select" name="notional_currency" id="NotionalCurrency">
+      <option selected value="1">USD</option>
+      <option value="0">EUR</option>
+    </select>
+  </div>
+  <div class="col-sm-2">
+    <br/>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
+</div>
+<br>
+{% if model_rate %}
+    <h5>Model Prediction of Fixed Rate:   {{model_rate}}</h5>
+{% endif %}
+
+
+{% endblock %}
+

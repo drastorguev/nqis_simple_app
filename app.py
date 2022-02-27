@@ -11,6 +11,10 @@ df['exch_date'] = pd.to_datetime(df['exch_date'])
 
 app = Flask(__name__)
 
+import pickle
+with open('data/model.obj', 'rb') as fp:
+    LR_model = pickle.load(fp)
+
 @app.route("/")
 def serve_home():
     last_day_date = df['exch_date'].max()
@@ -132,8 +136,6 @@ def serve_group():
     else:
         chart_labels = df_g.index.to_series().to_list()
 
-        print(chart_labels)
-
 
     return render_template('group_page.html', chart_labels=chart_labels, chart_data = chart_data,
                            global_min_date=global_min_date.strftime('%d/%m/%Y'),
@@ -229,6 +231,28 @@ def serve_data_page():
                            total_volume_disp=total_volume,
                            total_count_disp=total_count,
                            total_mean_disp=total_mean)
+
+@app.route("/pricing")
+def serve_pricing():
+    notional_amount = request.args.get('notional_amount')
+
+    rate_pred=None
+
+    if notional_amount and str(notional_amount).isdigit():
+        notional_amount = int(notional_amount)
+        if notional_amount >= 100000 or notional_amount <= 50000000:
+            contract_length = request.args.get('contract_length')
+            if contract_length and str(contract_length).isdigit():
+                contract_length = int(contract_length)
+                if notional_amount >= 1 or notional_amount <= 10:
+                    usd_flat = request.args.get('notional_currency')
+                    if usd_flat and str(usd_flat).isdigit():
+                        usd_flat = int(usd_flat)
+                        if usd_flat == 1 or usd_flat == 0:
+                            rate_pred = round(LR_model.predict([[notional_amount, contract_length, usd_flat]])[0], 5)
+
+
+    return render_template('pricing.html', model_rate=rate_pred)
 
 @app.route("/search_records")
 def serve_search():
