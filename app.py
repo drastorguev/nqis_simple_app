@@ -6,7 +6,7 @@ import seaborn as sns
 import random
 
 
-df = pd.read_csv('data/final_data.csv')
+df = pd.read_csv('data/final_data.csv').fillna('-')
 df['exch_date'] = pd.to_datetime(df['exch_date'])
 
 app = Flask(__name__)
@@ -38,7 +38,7 @@ def serve_home():
 def serve_group():
     keep_columns = set(
         ['Product ID', 'Action', 'Transaction Type', 'Leg 1 - Floating Rate Index', 'Leg 2 - Floating Rate Index',
-         'Notional Currency 1', 'expiration_year', 'contract_length'])
+         'Notional Currency 1', 'exch_date', 'expiration_year', 'contract_length'])
 
     df_columns = [x for x in df.columns if x in keep_columns]
 
@@ -99,7 +99,44 @@ def serve_group():
 
     table_html = final_df.round(1).to_html(classes=['table', 'table-striped', 'table-bordered'], index=False)
 
-    return render_template('group_page.html', global_min_date=global_min_date.strftime('%d/%m/%Y'),
+    df_g_temp = df_temp.groupby(sub_group_list)['notional_1_base'].sum()
+
+    if len(sub_group_list) > 1:
+
+        df_g_temp.index = pd.MultiIndex.from_tuples([(x[0], " & ".join(map(str,x[1:]))) for x in df_g_temp.index])
+
+        df_g = df_g_temp.unstack().fillna(0).round(1)
+
+        df_g_dict = df_g.to_dict().items()
+        chart_data = []
+
+        palette = sns.color_palette(None, len(df_g_dict)).as_hex()
+        random.shuffle(palette, random.seed(42))
+
+        i = 0
+        for k, v in df_g_dict:
+            dataset = {
+                'label': k,
+                'data': list(v.values()),
+                'backgroundColor': str(palette[i])
+            }
+            chart_data.append(dataset)
+            i += 1
+    else:
+        df_g = df_g_temp
+        chart_data = [{'label': f'Only Variable: {sub_group_list[0]}', 'data': df_g.to_list()}]
+
+    if sub_group_list[0] == 'exch_date':
+        chart_labels = df_g.index.to_series().dt.date.apply(lambda x: x.strftime('%d/%m/%y')).to_list()
+
+    else:
+        chart_labels = df_g.index.to_series().to_list()
+
+        print(chart_labels)
+
+
+    return render_template('group_page.html', chart_labels=chart_labels, chart_data = chart_data,
+                           global_min_date=global_min_date.strftime('%d/%m/%Y'),
                            global_max_date=global_max_date.strftime('%d/%m/%Y'),
                            global_exp_year_min_date=global_exp_year_min_date,
                            global_exp_year_max_date=global_exp_year_max_date,
@@ -183,7 +220,7 @@ def serve_data_page():
     total_mean = round(df_temp['notional_1_base'].mean() / 1000000, 1)
     total_count = len(df_temp)
 
-    return render_template('date_page.html', df_data=df_g.to_dict(),
+    return render_template('date_page.html',
                            chart_labels=chart_labels, chart_data = chart_data,
                            global_min_date=global_min_date.strftime('%d/%m/%Y'), global_max_date=global_max_date.strftime('%d/%m/%Y'),
                            global_exp_year_min_date=global_exp_year_min_date,

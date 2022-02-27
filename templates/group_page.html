@@ -9,8 +9,8 @@
 <script>
 
   const data = {
-  labels: {{ chart_labels }},
-  datasets: {{chart_data }}
+  labels: {{ chart_labels | tojson}},
+  datasets: {{ chart_data | tojson}}
 };
 
   const config = {
@@ -89,6 +89,18 @@
   </div>
 </form>
 </div>
+  <br/>
+  <div class="col-12">
+    <h4>Breakdown by selected variables (columns in data) (1st variable as x-asis)</h4>
+  </div>
+<canvas id="myChart" width="400" height="200"></canvas>
+<br/>
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
 <br>
 <div class="col-12">
     <h4>Breakdown by selected variables (columns in data) - USD (millions) </h4>
